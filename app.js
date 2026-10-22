@@ -1,7 +1,7 @@
 // Smart Contract Addresses
 const INSTRUCTOR_ADDRESS = "0x5f3046bD5aA3c6d4575AF09B8198d584f130708E";
 const SLV13_ADDRESS = "0x238359082d2d898A5ECa3F85b1D69c9a471ECb90";
-const MTK_ADDRESS = "0x2ed855874404938C3299d8Dc3627B5FE7244EFAA"; 
+const MTK_ADDRESS = "0x34DEcdc5c452E9A16Ca8Dd185feAD1Bb9fcE4780"; 
 
 const ERC20_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
