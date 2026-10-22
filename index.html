@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crypto Token Dashboard</title>
+  <!-- Ethers.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; padding: 2rem 1rem; }
+    .container { max-width: 800px; width: 100%; }
+    header { text-align: center; margin-bottom: 2rem; }
+    h1 { font-size: 2rem; color: #38bdf8; }
+    .subtitle { color: #94a3b8; margin-bottom: 1rem; }
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .card { background: #1e293b; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
+    .full-width { grid-column: span 2; }
+    h2 { font-size: 1.25rem; margin-bottom: 1rem; color: #f1f5f9; }
+    .balance-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #334155; }
+    .card-desc { font-size: 0.9rem; color: #94a3b8; margin-bottom: 1rem; }
+    .btn { padding: 0.75rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: background 0.2s; width: 100%; margin-top: 0.5rem; }
+    .primary-btn { background-color: #0284c7; color: white; }
+    .primary-btn:hover:not(:disabled) { background-color: #0369a1; }
+    .secondary-btn { background-color: #334155; color: white; }
+    .outline-btn { background: transparent; border: 1px solid #0284c7; color: #38bdf8; }
+    .outline-btn:hover:not(:disabled) { background: rgba(2, 132, 199, 0.1); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .form-group { margin-bottom: 1rem; display: flex; flex-direction: column; }
+    label { font-size: 0.875rem; color: #cbd5e1; margin-bottom: 0.25rem; display: flex; justify-content: space-between; }
+    input, select { padding: 0.75rem; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; }
+    .btn-link { background: none; border: none; color: #38bdf8; cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
+    .status-msg { margin-top: 1rem; font-size: 0.9rem; word-break: break-all; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Blockchain Student Dashboard</h1>
+      <p class="subtitle">Sepolia Testnet Operations</p>
+      <button id="connectBtn" class="btn primary-btn">Connect Wallet</button>
+      <div id="accountInfo" class="account-info hidden">
+        <span id="accountAddress">Not connected</span>
+      </div>
+    </header>
+
+    <main class="dashboard-grid">
+      <!-- Token Balances Card -->
+      <section class="card">
+        <h2>Your Balances</h2>
+        <div class="balance-item">
+          <span>Sepolia ETH:</span>
+          <strong id="ethBalance">0.00</strong>
+        </div>
+        <div class="balance-item">
+          <span>Gold Token (MTK):</span>
+          <strong id="mtkBalance">0.00</strong>
+        </div>
+        <div class="balance-item">
+          <span>Silver Token (SLV13):</span>
+          <strong id="slvBalance">0.00</strong>
+        </div>
+        <button id="refreshBtn" class="btn secondary-btn" disabled>Refresh Balances</button>
+      </section>
+
+      <!-- Import Tokens to MetaMask Card -->
+      <section class="card">
+        <h2>Import to MetaMask</h2>
+        <p class="card-desc">Add custom tokens directly to your wallet with one click.</p>
+        <div class="btn-group">
+          <button id="addMtkBtn" class="btn outline-btn" disabled>Add MTK to Wallet</button>
+          <button id="addSlvBtn" class="btn outline-btn" disabled>Add SLV13 to Wallet</button>
+        </div>
+      </section>
+
+      <!-- Transfer Tokens Card -->
+      <section class="card full-width">
+        <h2>Transfer Tokens</h2>
+        <form id="transferForm">
+          <div class="form-group">
+            <label for="tokenSelect">Select Token:</label>
+            <select id="tokenSelect">
+              <option value="SLV13">Silver Token (SLV13)</option>
+              <option value="MTK">Gold Token (MTK)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="recipientInput">
+              Recipient Address:
+              <button type="button" id="fillInstructorBtn" class="btn-link">Fill Instructor Address</button>
+            </label>
+            <input type="text" id="recipientInput" placeholder="0x..." required />
+          </div>
+
+          <div class="form-group">
+            <label for="amountInput">Amount:</label>
+            <input type="number" id="amountInput" step="any" placeholder="10" required />
+          </div>
+
+          <button type="submit" id="sendBtn" class="btn primary-btn" disabled>Send Tokens</button>
+        </form>
+        <p id="txStatus" class="status-msg"></p>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
