@@ -104,6 +104,16 @@ async function addTokenToMetaMask(address, symbol, decimals) {
 
 async function handleTransfer(e) {
     e.preventDefault();
+  
+    // Pārbaude: Vai lietotājs atrodas Sepolia tīklā (Chain ID: 11155111)
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const network = await provider.getNetwork();
+    if (network.chainId !== 11155111) {
+        txStatus.innerText = "Error: Please switch your MetaMask to Sepolia testnet!";
+        txStatus.style.color = "#ff4d4d";
+        return;
+    }
+  
     const token = document.getElementById("tokenSelect").value;
     const recipient = document.getElementById("recipientInput").value;
     const amount = document.getElementById("amountInput").value;
