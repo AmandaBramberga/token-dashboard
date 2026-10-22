@@ -103,33 +103,60 @@ async function addTokenToMetaMask(address, symbol, decimals) {
 }
 
 async function handleTransfer(e) {
-  e.preventDefault();
-  const token = document.getElementById("tokenSelect").value;
-  const recipient = document.getElementById("recipientInput").value;
-  const amount = document.getElementById("amountInput").value;
+    e.preventDefault();
+    const token = document.getElementById("tokenSelect").value;
+    const recipient = document.getElementById("recipientInput").value;
+    const amount = document.getElementById("amountInput").value;
 
-  const tokenAddress = token === "SLV13" ? SLV13_ADDRESS : MTK_ADDRESS;
+    // 1. Pārbaude: Summa nav 0 vai tukša
+    if (!amount || parseFloat(amount) <= 0) {
+        txStatus.innerText = "Error: Amount must be greater than 0!";
+        txStatus.style.color = "#ff4d4d";
+        return;
+    }
 
-  txStatus.innerText = "Initiating transaction...";
-  txStatus.style.color = "#38bdf8";
+    // 2. Pārbaude: Derīga saņēmēja adrese
+    if (!ethers.utils.isAddress(recipient)) {
+        txStatus.innerText = "Error: Invalid recipient wallet address!";
+        txStatus.style.color = "#ff4d4d";
+        return;
+    }
 
-  try {
-    const contract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
-    const parsedAmount = ethers.utils.parseUnits(amount, 18);
+    const tokenAddress = token === "SLV13" ? SLV13_ADDRESS : MTK_ADDRESS;
 
-    const tx = await contract.transfer(recipient, parsedAmount);
-    txStatus.innerText = `Transaction sent! Hash: ${tx.hash}`;
+    txStatus.innerText = "Initiating transaction...";
+    txStatus.style.color = "#38bdf8";
 
-    await tx.wait();
-    txStatus.innerText = "Transaction confirmed successfully!";
-    txStatus.style.color = "#4ade80";
+    try {
+        const contract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+        
+        // Pārbaudām lietotāja faktisko bilanci no līguma
+        const userAddress = await signer.getAddress();
+        const userBalance = await contract.balanceOf(userAddress);
+        const parsedAmount = ethers.utils.parseUnits(amount, 18);
 
-    fetchBalances();
-  } catch (err) {
-    console.error(err);
-    txStatus.innerText = `Transfer failed: ${err.message || err}`;
-    txStatus.style.color = "#f87171";
-  }
+        // 3. Pārbaude: Vai pietiek tokenu bilancē (Excess amount)
+        if (parsedAmount.gt(userBalance)) {
+            txStatus.innerText = "Error: Insufficient token balance!";
+            txStatus.style.color = "#ff4d4d";
+            return;
+        }
+
+        const tx = await contract.transfer(recipient, parsedAmount);
+        txStatus.innerText = `Transaction sent! Hash: ${tx.hash}`;
+
+        await tx.wait();
+        txStatus.innerText = "Transaction confirmed successfully!";
+        txStatus.style.color = "#4ade80";
+
+        fetchBalances();
+    } catch (error) {
+        console.error(error);
+        
+        // Kļūdas paziņojums, ja darījums tika atcelts MetaMask vai noraidīts tīklā
+        txStatus.innerText = "Transaction failed or cancelled!";
+        txStatus.style.color = "#ff4d4d";
+    }
 }
 
 window.addEventListener("DOMContentLoaded", init);
